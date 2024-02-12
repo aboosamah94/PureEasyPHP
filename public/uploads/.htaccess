@@ -1,0 +1,26 @@
+# Disable directory listing
+Options -Indexes
+
+# Block double extensions from being uploaded or accessed, including htshells
+<FilesMatch ".*\.([^.]+)\.([^.]+)$">
+   Require all denied
+</FilesMatch>
+
+# Disable script execution for certain file types
+<Files ~ "\.(deb|phps|phtml|js|php)$">
+   Require all denied
+</Files>
+
+<Files ~ "^.*\.([Pp][Hh][Pp])">
+   Require all denied
+</Files>
+
+# Disable CGI script execution
+<FilesMatch "\.(php|php3|php4|phtml|pl|py|jsp|Asp|htm|shtml|sh|cgi|txt)$">
+   Require all denied
+</FilesMatch>
+
+# Deny access to specific file types
+<FilesMatch "\.(htpasswd|ini|phps|fla|psd|log|sh)$">
+   Require all denied
+</FilesMatch>
