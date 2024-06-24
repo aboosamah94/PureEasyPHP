@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'admin';
+$pageTitle = translate('nav_dashboard');
 ?>
 
 <h1 align="center">
