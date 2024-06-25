@@ -10,9 +10,8 @@ class App
     public static string $defaultLanguage = 'en';
     public static int $sessionExpiration = 3600;
     public static string $appTimezone = 'UTC';
-
-    // Load helper for all project files - like ['Common', 'form']
-    protected static array $helpers = ['Common'];
+    public static bool $activeCSRF = true; // true or false
+    protected static array $helpers = ['Common']; // Load helper for all project files - like ['Common', 'form']
 
     public static function initialize()
     {

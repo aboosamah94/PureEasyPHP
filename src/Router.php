@@ -10,8 +10,10 @@ class Router
     public static function route()
     {
         try {
-            // Filters for CSRF protection
-            Filters::checkCsrf();
+            // Filter for CSRF protection - if in app true
+            if (App::$activeCSRF) {
+                Filters::checkCsrf();
+            }
 
             // Get and validate the route from the request URI
             $route = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

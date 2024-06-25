@@ -4,8 +4,6 @@ require __DIR__ . '/../vendor/autoload.php';
 
 initializeEnvironment();
 defineConstants();
-requireFiles();
-initializeApp();
 
 function initializeEnvironment()
 {
@@ -22,33 +20,11 @@ function checkPhpVersion($minPhpVersion)
 
 function defineConstants()
 {
-    $appFolderName = 'app';
-
     define('BASE_PATH', realpath(__DIR__ . '/..'));
-    define('APP_FOLDER', realpath(BASE_PATH . '/' . $appFolderName));
-    define('CONFIG_FOLDER', APP_FOLDER . '/Config');
+    define('APP_FOLDER', realpath(BASE_PATH . '/app'));
+    define('SRC_FOLDER', realpath(BASE_PATH . '/src'));
 }
 
-function requireFiles()
-{
-    $requiredFiles = [
-        '/App.php',
-        '/Filters.php',
-    ];
+require rtrim(SRC_FOLDER, '\\/ ') . DIRECTORY_SEPARATOR . 'bootstrap.php';
 
-    foreach ($requiredFiles as $file) {
-        $filePath = CONFIG_FOLDER . $file;
-        if (file_exists($filePath)) {
-            require_once $filePath;
-        } else {
-            throw new Exception("Required configuration file not found: $filePath");
-        }
-    }
-}
-
-function initializeApp()
-{
-    \Config\App::initialize();
-    Pureeasyphp\Paths::definePaths();
-    Pureeasyphp\Router::route();
-}
+exit();
