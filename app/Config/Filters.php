@@ -2,6 +2,8 @@
 
 namespace Config;
 
+use Pureeasyphp\Paths;
+
 class Filters
 {
     public static function checkLogin()

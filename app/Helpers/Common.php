@@ -1,8 +1,10 @@
 <?php
 
+use Pureeasyphp\Paths;
+
 function baseUrl($path = '')
 {
-    return \Config\Paths::baseUrl($path);
+    return Paths::baseUrl($path);
 }
 
 function generateCsrfToken()

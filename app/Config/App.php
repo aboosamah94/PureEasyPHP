@@ -11,6 +11,9 @@ class App
     public static int $sessionExpiration = 3600;
     public static string $appTimezone = 'UTC';
 
+    // Load helper for all project files - like ['Common', 'form']
+    protected static array $helpers = ['Common'];
+
     public static function initialize()
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -19,11 +22,6 @@ class App
             session_start();
         }
 
-        self::loadHelpers();
-    }
-
-    protected static function loadHelpers()
-    {
-        Helper::load('Common');
+        \Pureeasyphp\Helper::getHelpers(self::$helpers);
     }
 }

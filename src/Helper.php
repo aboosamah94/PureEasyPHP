@@ -1,6 +1,6 @@
 <?php
 
-namespace Config;
+namespace Pureeasyphp;
 
 class Helper
 {
@@ -17,6 +17,13 @@ class Helper
             } else {
                 throw new \Exception('Helper file not found: ' . $helperPath);
             }
+        }
+    }
+
+    public static function getHelpers(array $helpers)
+    {
+        foreach ($helpers as $helper) {
+            self::load($helper);
         }
     }
 }
