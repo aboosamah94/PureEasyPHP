@@ -11,12 +11,20 @@ class ComposerStaticInit5f5751cd9395a16ba53a8bbc17166da7
         array (
             'Pureeasyphp\\' => 12,
         ),
+        'C' => 
+        array (
+            'Config\\' => 7,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'Pureeasyphp\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/src',
+            0 => __DIR__ . '/../..' . '/system',
+        ),
+        'Config\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/app/Config',
         ),
     );
 

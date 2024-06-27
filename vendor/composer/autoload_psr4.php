@@ -6,5 +6,6 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Pureeasyphp\\' => array($baseDir . '/src'),
+    'Pureeasyphp\\' => array($baseDir . '/system'),
+    'Config\\' => array($baseDir . '/app/Config'),
 );

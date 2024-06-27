@@ -2,8 +2,8 @@
 
 namespace Pureeasyphp;
 
-use \Config\Filters;
-use \Config\App;
+use Config\Filters;
+use Config\App;
 
 class Router
 {
@@ -53,6 +53,14 @@ class Router
 
             // Determine the base path based on the route
             $basePath = self::determineBasePath($routeParts, $adminPath, $authPath, $mainPath);
+
+            // Check for Api
+            if (App::$activeAPI) {
+                if (isset($routeParts[1]) && $routeParts[1] === App::$apiLink) {
+                    require_once 'Api.php';
+                    exit();
+                }
+            }
 
             // Check for admin or auth routes
             if (isset($routeParts[1]) && $routeParts[1] === App::$adminLink) {

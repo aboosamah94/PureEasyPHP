@@ -22,9 +22,9 @@ function defineConstants()
 {
     define('BASE_PATH', realpath(__DIR__ . '/..'));
     define('APP_FOLDER', realpath(BASE_PATH . '/app'));
-    define('SRC_FOLDER', realpath(BASE_PATH . '/src'));
+    define('SYSTEM_FOLDER', realpath(BASE_PATH . '/system'));
 }
 
-require rtrim(SRC_FOLDER, '\\/ ') . DIRECTORY_SEPARATOR . 'bootstrap.php';
+require rtrim(SYSTEM_FOLDER, '\\/ ') . DIRECTORY_SEPARATOR . 'bootstrap.php';
 
 exit();

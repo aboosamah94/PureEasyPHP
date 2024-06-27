@@ -37,6 +37,11 @@ class Paths
         return realpath(self::getAppFolderPath() . '/View');
     }
 
+    public static function getApiFilePath($file)
+    {
+        return realpath(self::getAppFolderPath() . '/Api/' . $file . '.php');
+    }
+
     private static function calculateBaseUrl()
     {
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';

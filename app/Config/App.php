@@ -6,6 +6,8 @@ class App
 {
     public static string $adminLink = 'admin';
     public static string $authLink = 'auth';
+    public static bool $activeAPI = true; // true or false
+    public static string $apiLink = 'api';
     public static array $allowedLanguages = ['en', 'ar']; // like ['en', 'ar', 'fr']
     public static string $defaultLanguage = 'en';
     public static int $sessionExpiration = 3600;

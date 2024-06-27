@@ -1,5 +1,9 @@
 <?php
 
+use Config\App;
+use Pureeasyphp\Paths;
+use Pureeasyphp\Router;
+
 requireFiles();
 initializeApp();
 
@@ -22,7 +26,7 @@ function requireFiles()
 
 function initializeApp()
 {
-    \Config\App::initialize();
-    Pureeasyphp\Paths::definePaths();
-    Pureeasyphp\Router::route();
+    App::initialize();
+    Paths::definePaths();
+    Router::route();
 }
