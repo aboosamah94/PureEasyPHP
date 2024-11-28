@@ -25,9 +25,6 @@ PureEasyPHP is a lightweight PHP framework designed for simplicity and ease of u
 **Getting Started**
 
 Review the config folder for essential configurations.
-Explore the app folder to understand the application structure.
-Define your routes in the config/Router.php file.
-Build controllers and views in the respective folders within the app directory.
 Customize the config/App.php file for application-specific settings.
 
 **Contributing**
