@@ -68,28 +68,36 @@ class Api
         }
     }
 
-
     private static function routeRequest($method, $path)
     {
-        if (isset(self::$routes[$method][$path])) {
-            $className = self::$routes[$method][$path];
-            $methodName = strtolower($method);
+        $path = '/' . trim($path, '/');
 
-            $filePath = Paths::getApiFilePath($className);
-            if ($filePath && file_exists($filePath)) {
-                require_once (Paths::getAppFolderPath() . '/Config/Database.php');
-                include_once $filePath;
-                if (class_exists($className) && method_exists($className, $methodName)) {
-                    return call_user_func([$className, $methodName]);
+        foreach (self::$routes[$method] as $route => $handler) {
+            $pattern = preg_replace('#:([\w]+)#', '([^/]+)', $route);
+            $pattern = str_replace('/', '\/', $pattern);
+            $pattern = "#^$pattern$#";
+
+            if (preg_match($pattern, $path, $matches)) {
+                $className = $handler;
+                $methodName = strtolower($method);
+
+                $filePath = Paths::getApiFilePath($className);
+                if ($filePath && file_exists($filePath)) {
+                    require_once(Paths::getAppFolderPath() . '/Config/Database.php');
+                    include_once $filePath;
+                    if (class_exists($className) && method_exists($className, $methodName)) {
+                        array_shift($matches); // Remove full match
+                        return call_user_func_array([$className, $methodName], $matches);
+                    } else {
+                        throw new \Exception('Method not found', 404);
+                    }
                 } else {
-                    throw new \Exception('Method not found', 404);
+                    throw new \Exception('File not found', 404);
                 }
-            } else {
-                throw new \Exception('File not found', 404);
             }
-        } else {
-            throw new \Exception('Route not found', 404);
         }
+
+        throw new \Exception('Route not found', 404);
     }
 
     private static function handleException(\Exception $e)
@@ -105,7 +113,7 @@ class Api
 }
 
 // Load routes
-require_once (Paths::getAppFolderPath() . '/Config/RoutesApi.php');
+require_once(Paths::getAppFolderPath() . '/Config/RoutesApi.php');
 
 // Handle the request
 Api::handleRequest();

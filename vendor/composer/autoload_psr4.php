@@ -8,4 +8,5 @@ $baseDir = dirname($vendorDir);
 return array(
     'Pureeasyphp\\' => array($baseDir . '/system'),
     'Config\\' => array($baseDir . '/app/Config'),
+    'App\\' => array($baseDir . '/app'),
 );

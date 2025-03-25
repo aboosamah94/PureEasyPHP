@@ -7,6 +7,17 @@ use Config\App;
 
 class Router
 {
+    private static $basePath = null;
+
+    // Get base path dynamically
+    private static function getBasePath()
+    {
+        if (self::$basePath === null) {
+            self::$basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') . '/';
+        }
+        return self::$basePath;
+    }
+
     public static function route()
     {
         try {
@@ -19,7 +30,6 @@ class Router
             $route = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
             $route = self::validateRoute($route);
 
-            // Load the appropriate content based on the route
             self::loadContent($route);
         } catch (\Exception $e) {
             self::handleException($e);
@@ -32,56 +42,54 @@ class Router
         if (!preg_match($allowedCharacters, $route)) {
             throw new \Exception('Invalid characters in the route.');
         }
-
         return $route;
     }
 
     private static function loadContent($route)
     {
         try {
-            // Load Database configuration
-            require_once (Paths::getAppFolderPath() . '/Config/Database.php');
+            require_once(Paths::getAppFolderPath() . '/Config/Database.php');
 
-            $basePath = str_replace(DIRECTORY_SEPARATOR, '/', dirname($_SERVER['SCRIPT_NAME']));
-            $path = str_replace($basePath, '', $route);
-            $routeParts = explode('/', $path);
+            // Remove base path from route
+            $basePath = self::getBasePath();
+            $cleanRoute = preg_replace('#^' . preg_quote($basePath, '#') . '#', '', $route);
+            $routeParts = array_filter(explode('/', trim($cleanRoute, '/')));
 
             // Define paths
             $mainPath = Paths::getViewFolderPath() . '/main/';
             $adminPath = Paths::getViewFolderPath() . '/admin/';
             $authPath = Paths::getViewFolderPath() . '/auth/';
+            $noTemplatePath = Paths::getViewFolderPath() . '/no_template/';
 
-            // Determine the base path based on the route
-            $basePath = self::determineBasePath($routeParts, $adminPath, $authPath, $mainPath);
+            $baseFolderPath = self::determineBasePath($routeParts, $adminPath, $authPath, $mainPath);
 
-            // Check for Api
-            if (App::$activeAPI) {
-                if (isset($routeParts[1]) && $routeParts[1] === App::$apiLink) {
-                    require_once 'Api.php';
-                    exit();
+            // Check for API
+            if (App::$activeAPI && !empty($routeParts[0]) && $routeParts[0] === App::$apiLink) {
+                require_once 'Api.php';
+                exit();
+            }
+
+            // Check for admin, auth, or no-template routes
+            if (!empty($routeParts[0])) {
+                if ($routeParts[0] === App::$adminLink) {
+                    Filters::checkLogin();
+                } elseif ($routeParts[0] === App::$authLink) {
+                    Filters::checkLoginDone();
+                } elseif ($routeParts[0] === App::$noTemplate) {
+                    $baseFolderPath = $noTemplatePath;
                 }
             }
 
-            // Check for admin or auth routes
-            if (isset($routeParts[1]) && $routeParts[1] === App::$adminLink) {
-                Filters::checkLogin();
-            }
-
-            if (isset($routeParts[1]) && $routeParts[1] === App::$authLink) {
-                Filters::checkLoginDone();
-            }
-
             $folderPath = '';
-            $file = (count($routeParts) <= 1) ? 'index' : '';
+            $file = empty($routeParts) ? 'index' : '';
 
-            // Traverse the route parts to find the correct file path
             foreach ($routeParts as $index => $part) {
-                if ($index === 1 && in_array($part, [App::$adminLink, App::$authLink])) {
+                if ($index === 0 && in_array($part, [App::$adminLink, App::$authLink, App::$noTemplate])) {
                     continue;
                 }
 
                 if (!empty($part)) {
-                    $potentialPath = $basePath . $folderPath . $part . '/';
+                    $potentialPath = $baseFolderPath . $folderPath . $part . '/';
                     if (is_dir($potentialPath)) {
                         $folderPath .= $part . '/';
                     } else {
@@ -90,25 +98,27 @@ class Router
                 }
             }
 
-            // Determine the file path to include
-            $file = (is_dir($basePath . $folderPath) && empty($file)) ? 'index.php' : $file;
-            $filePath = $basePath . $folderPath . $file . ((pathinfo($file, PATHINFO_EXTENSION) === '') ? '.php' : '');
-            $indexPath = $basePath . 'index.php';
+            $file = (is_dir($baseFolderPath . $folderPath) && empty($file)) ? 'index.php' : $file;
+            $filePath = $baseFolderPath . $folderPath . $file . ((pathinfo($file, PATHINFO_EXTENSION) === '') ? '.php' : '');
+            $indexPath = $baseFolderPath . 'index.php';
 
-            // Include the content file or handle errors
             if (is_file($filePath)) {
                 ob_start();
                 include_once $filePath;
                 $content = ob_get_clean();
-                $templatePath = $basePath . 'template.php';
 
-                if (is_file($templatePath)) {
-                    include $templatePath;
+                if (!empty($routeParts[0]) && $routeParts[0] === App::$noTemplate) {
+                    echo $content;
                 } else {
-                    throw new \Exception("Error: 'template.php' is missing in the folder: $basePath");
+                    $templatePath = $baseFolderPath . 'template.php';
+                    if (is_file($templatePath)) {
+                        include $templatePath;
+                    } else {
+                        throw new \Exception("Error: 'template.php' is missing in the folder: $baseFolderPath");
+                    }
                 }
             } elseif (!is_file($indexPath)) {
-                throw new \Exception("Error: 'index.php' is missing in the folder: $basePath");
+                throw new \Exception("Error: 'index.php' is missing in the folder: $baseFolderPath");
             } else {
                 self::handle404Error();
             }
@@ -120,10 +130,9 @@ class Router
 
     private static function determineBasePath($routeParts, $adminPath, $authPath, $mainPath)
     {
-        if (isset($routeParts[1]) && in_array($routeParts[1], [App::$adminLink, App::$authLink])) {
-            return ($routeParts[1] === App::$adminLink) ? $adminPath : $authPath;
+        if (!empty($routeParts[0]) && in_array($routeParts[0], [App::$adminLink, App::$authLink])) {
+            return ($routeParts[0] === App::$adminLink) ? $adminPath : $authPath;
         }
-
         return $mainPath;
     }
 
@@ -136,7 +145,8 @@ class Router
     {
         error_log('Exception: ' . $e->getMessage());
         http_response_code(500);
-        include (Paths::getViewPath('errors/error_500.php'));
+        include(Paths::getViewPath('errors/error_500.php'));
         exit;
     }
+
 }

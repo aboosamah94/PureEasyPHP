@@ -46,13 +46,18 @@ class Paths
     {
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'];
-        $port = $_SERVER['SERVER_PORT'] == '80' ? '' : (':' . $_SERVER['SERVER_PORT']);
+        $port = $_SERVER['SERVER_PORT'];
+        $defaultPort = ($protocol === 'https' ? '443' : '80');
+        $port = ($port == $defaultPort) ? '' : (':' . $port);
         $script = $_SERVER['SCRIPT_NAME'];
-        return rtrim("$protocol://$host$port", '/') . dirname($script);
+        return rtrim("$protocol://$host$port" . dirname($script), '/') . '/';
     }
 
     public static function baseUrl($path = '')
     {
+        if (self::$baseUrl === null) {
+            self::$baseUrl = self::calculateBaseUrl();
+        }
         return rtrim(self::$baseUrl, '/') . '/' . ltrim($path, '/');
     }
 

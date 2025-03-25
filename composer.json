@@ -17,7 +17,8 @@
     "autoload": {
         "psr-4": {
             "Pureeasyphp\\": "system/",
-            "Config\\": "app/Config/"
+            "Config\\": "app/Config/",
+            "App\\": "app/"
         }
     }
 }
